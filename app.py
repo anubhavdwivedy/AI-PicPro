@@ -7,10 +7,13 @@ from PIL import Image, ImageDraw
 import io
 import openai
 from werkzeug.security import generate_password_hash, check_password_hash
+from dotenv import load_dotenv
 
 # -------------------- Config --------------------
+load_dotenv()
+
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'
+app.secret_key = os.getenv('SECRET_KEY')
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['PROCESSED_FOLDER'] = 'processed'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
