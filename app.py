@@ -1,12 +1,12 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory, session, jsonify
-from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, login_required, logout_user, UserMixin, current_user
 from rembg import remove
 from PIL import Image, ImageDraw
 import io
 import openai
+from werkzeug.security import generate_password_hash, check_password_hash
 
 # -------------------- Config --------------------
 app = Flask(__name__)
@@ -22,7 +22,7 @@ os.makedirs(app.config['PROCESSED_FOLDER'], exist_ok=True)
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
-openai.api_key = 'YOUR_OPENAI_API_KEY'
+openai.api_key = os.getenv('OPENAI_API_KEY')
 
 # -------------------- Models --------------------
 class User(UserMixin, db.Model):
@@ -50,10 +50,13 @@ def index():
 def register():
     if request.method == 'POST':
         username = request.form['username']
-        password = request.form['password']
+        raw_password = request.form['password']
+
         if User.query.filter_by(username=username).first():
             return 'Username already exists'
-        new_user = User(username=username, password=password)
+
+        hashed_password = generate_password_hash(raw_password)
+        new_user = User(username=username, password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
         return redirect(url_for('login'))
@@ -63,9 +66,11 @@ def register():
 def login():
     if request.method == 'POST':
         username = request.form['username']
-        password = request.form['password']
-        user = User.query.filter_by(username=username, password=password).first()
-        if user:
+        raw_password = request.form['password']
+
+        user = User.query.filter_by(username=username).first()
+
+        if user and check_password_hash(user.password, raw_password):
             login_user(user)
             return redirect(url_for('dashboard'))
         return 'Invalid credentials'
