@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="text-center mt-5">
+    <h1>Welcome to AI Image Toolkit</h1>
+    <p class="lead">Easily remove backgrounds, convert formats, add watermarks, and get AI chat support.</p>
+    
+    {% if current_user.is_authenticated %}
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Go to Dashboard</a>
+    {% else %}
+        <a href="{{ url_for('login') }}" class="btn btn-success">Login</a>
+        <a href="{{ url_for('register') }}" class="btn btn-secondary">Register</a>
+    {% endif %}
+</div>
+{% endblock %}
