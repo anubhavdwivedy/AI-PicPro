@@ -1,0 +1,6 @@
+Flask==3.0.0
+flask_sqlalchemy==3.1.1
+flask_login==0.6.3
+rembg==2.0.52
+Pillow==10.0.0
+openai==1.30.1
