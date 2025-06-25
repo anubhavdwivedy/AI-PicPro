@@ -1,0 +1,19 @@
+body {
+    background-color: #f8f9fa;
+}
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+h1, h2, h4 {
+    margin-top: 20px;
+}
+
+#chat-box {
+    border: 1px solid #ccc;
+    background: #fff;
+    padding: 10px;
+    height: 250px;
+    overflow-y: auto;
+}
