@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>Your Dashboard</h2>
+
+<!-- Upload Form -->
+<form action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data" class="my-4">
+    <div class="mb-3">
+        <label>Select Image</label>
+        <input type="file" name="image" class="form-control" required>
+    </div>
+    <button class="btn btn-success">Upload</button>
+</form>
+
+<!-- File History Table -->
+<h4>Your File History</h4>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Filename</th>
+            <th>Action</th>
+            <th>Options</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for file in history %}
+        <tr>
+            <td>{{ file.filename }}</td>
+            <td>{{ file.action }}</td>
+            <td>
+                {% if 'Uploaded' in file.action %}
+                    <a href="{{ url_for('remove_bg', filename=file.filename) }}" class="btn btn-warning btn-sm">Remove BG</a>
+                    <a href="{{ url_for('convert_format', filename=file.filename, format='png') }}" class="btn btn-secondary btn-sm">Convert to PNG</a>
+                    <a href="{{ url_for('watermark', filename=file.filename) }}" class="btn btn-info btn-sm">Watermark</a>
+                {% else %}
+                    <a href="{{ url_for('download', filename=file.filename) }}" class="btn btn-success btn-sm">Download</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Chat Assistant -->
+<h4 class="mt-5">Chat Assistant</h4>
+<div id="chat-box" style="border:1px solid #ccc; padding:10px; height:200px; overflow-y:auto; background:#f8f9fa;"></div>
+<div class="input-group mt-2">
+    <input type="text" id="chat-input" class="form-control" placeholder="Ask something...">
+    <button id="chat-btn" class="btn btn-primary">Send</button>
+</div>
+
+<script>
+document.getElementById('chat-btn').onclick = () => {
+    const msg = document.getElementById('chat-input').value.trim();
+    if (!msg) return;
+    
+    fetch('/chat', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({message: msg})
+    })
+    .then(res => res.json())
+    .then(data => {
+        const box = document.getElementById('chat-box');
+        box.innerHTML += `<div><b>You:</b> ${msg}</div>`;
+        box.innerHTML += `<div><b>Assistant:</b> ${data.reply || data.error}</div>`;
+        box.scrollTop = box.scrollHeight;
+        document.getElementById('chat-input').value = '';
+    });
+};
+</script>
+
+{% endblock %}
