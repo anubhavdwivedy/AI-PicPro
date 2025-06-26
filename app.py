@@ -57,10 +57,8 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         raw_password = request.form['password']
-
         if User.query.filter_by(username=username).first():
             return 'Username already exists'
-
         hashed_password = generate_password_hash(raw_password)
         new_user = User(username=username, password=hashed_password)
         db.session.add(new_user)
@@ -73,9 +71,7 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         raw_password = request.form['password']
-
         user = User.query.filter_by(username=username).first()
-
         if user and check_password_hash(user.password, raw_password):
             login_user(user)
             return redirect(url_for('dashboard'))
@@ -141,7 +137,7 @@ def watermark(filename):
     img = Image.open(input_path).convert("RGBA")
     watermark_layer = Image.new("RGBA", img.size)
     draw = ImageDraw.Draw(watermark_layer)
-    draw.text((10, 10), "Your Watermark", fill=(255,255,255,128))
+    draw.text((10, 10), "Your Watermark", fill=(255, 255, 255, 128))
     combined = Image.alpha_composite(img, watermark_layer)
     combined.save(output_path)
     record = FileHistory(filename=f'watermarked_{filename}', action='Watermarked', user_id=current_user.id)
@@ -169,7 +165,3 @@ def chat():
         return jsonify({'reply': reply})
     except Exception as e:
         return jsonify({'error': str(e)})
-
-# -------------------- Run --------------------
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=True)
