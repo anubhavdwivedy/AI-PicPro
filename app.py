@@ -1,18 +1,4 @@
 import os
-from flask import Flask
-
-app = Flask(__name__)
-
-@app.route('/')
-def home():
-    return "✅ Flask App is running with Waitress on Render!"
-
-if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))  # Render provides PORT via environment variable
-    from waitress import serve
-    serve(app, host='0.0.0.0', port=port)
-'''
-import os
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
@@ -190,4 +176,3 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     from waitress import serve
     serve(app, host='0.0.0.0', port=port)
-'''
