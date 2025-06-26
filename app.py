@@ -17,7 +17,7 @@ app.secret_key = os.getenv('SECRET_KEY', 'default_secret_key')
 # Use /tmp directory for uploads (Render requires this)
 app.config['UPLOAD_FOLDER'] = '/tmp/uploads'
 app.config['PROCESSED_FOLDER'] = '/tmp/processed'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/database.db'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max upload
 
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
