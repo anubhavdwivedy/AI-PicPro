@@ -1,6 +1,9 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory, jsonify
 from flask_sqlalchemy import SQLAlchemy
+
+print(f"SECRET_KEY: {os.getenv('SECRET_KEY')}")
+print(f"OPENAI_API_KEY: {os.getenv('OPENAI_API_KEY')}")
 from flask_login import LoginManager, login_user, login_required, logout_user, UserMixin, current_user
 from rembg import remove
 from PIL import Image, ImageDraw
@@ -167,6 +170,7 @@ def chat():
 # -------------------- DB Init --------------------
 with app.app_context():
     db.create_all()
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
