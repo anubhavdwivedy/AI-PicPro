@@ -1,10 +1,9 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, login_required, logout_user, UserMixin, current_user
 from rembg import remove
 from PIL import Image, ImageDraw
-import io
 import openai
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
@@ -13,22 +12,26 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.getenv('SECRET_KEY')
-app.config['UPLOAD_FOLDER'] = 'uploads'
-app.config['PROCESSED_FOLDER'] = 'processed'
+app.secret_key = os.getenv('SECRET_KEY', 'dev_secret_fallback')
+
+# Use /tmp for DB on Render (ephemeral but writable)
+app.config['UPLOAD_FOLDER'] = '/tmp/uploads'
+app.config['PROCESSED_FOLDER'] = '/tmp/processed'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/database.db'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max upload
 
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+
+# OpenAI Setup
 openai.api_key = os.getenv('OPENAI_API_KEY')
 
-# -------------------- Ensure Directories & DB --------------------
+# Ensure folders exist
 with app.app_context():
-    db.create_all()
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     os.makedirs(app.config['PROCESSED_FOLDER'], exist_ok=True)
+    db.create_all()
 
 # -------------------- Models --------------------
 class User(UserMixin, db.Model):
@@ -57,8 +60,10 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         raw_password = request.form['password']
+        
         if User.query.filter_by(username=username).first():
-            return 'Username already exists'
+            return 'Username already exists', 409
+        
         hashed_password = generate_password_hash(raw_password)
         new_user = User(username=username, password=hashed_password)
         db.session.add(new_user)
@@ -71,11 +76,13 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         raw_password = request.form['password']
+        
         user = User.query.filter_by(username=username).first()
         if user and check_password_hash(user.password, raw_password):
             login_user(user)
             return redirect(url_for('dashboard'))
-        return 'Invalid credentials'
+        
+        return 'Invalid credentials', 401
     return render_template('login.html')
 
 @app.route('/logout')
@@ -97,6 +104,7 @@ def upload():
     file = request.files['image']
     path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
     file.save(path)
+    
     record = FileHistory(filename=file.filename, action='Uploaded', user_id=current_user.id)
     db.session.add(record)
     db.session.commit()
@@ -106,11 +114,14 @@ def upload():
 @login_required
 def remove_bg(filename):
     input_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    
     with open(input_path, 'rb') as inp:
         output = remove(inp.read())
+    
     out_path = os.path.join(app.config['PROCESSED_FOLDER'], f'nobg_{filename}')
     with open(out_path, 'wb') as out_file:
         out_file.write(output)
+    
     record = FileHistory(filename=f'nobg_{filename}', action='Background Removed', user_id=current_user.id)
     db.session.add(record)
     db.session.commit()
@@ -121,9 +132,11 @@ def remove_bg(filename):
 def convert_format(filename, format):
     input_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     img = Image.open(input_path)
+    
     output_filename = f'converted_{os.path.splitext(filename)[0]}.{format}'
     out_path = os.path.join(app.config['PROCESSED_FOLDER'], output_filename)
     img.save(out_path, format=format.upper())
+    
     record = FileHistory(filename=output_filename, action=f'Converted to {format}', user_id=current_user.id)
     db.session.add(record)
     db.session.commit()
@@ -134,12 +147,16 @@ def convert_format(filename, format):
 def watermark(filename):
     input_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     output_path = os.path.join(app.config['PROCESSED_FOLDER'], f'watermarked_{filename}')
+    
     img = Image.open(input_path).convert("RGBA")
     watermark_layer = Image.new("RGBA", img.size)
+    
     draw = ImageDraw.Draw(watermark_layer)
-    draw.text((10, 10), "Your Watermark", fill=(255, 255, 255, 128))
+    draw.text((10, 10), "Your Watermark", fill=(255,255,255,128))
+    
     combined = Image.alpha_composite(img, watermark_layer)
     combined.save(output_path)
+    
     record = FileHistory(filename=f'watermarked_{filename}', action='Watermarked', user_id=current_user.id)
     db.session.add(record)
     db.session.commit()
@@ -164,4 +181,4 @@ def chat():
         reply = response.choices[0].message.content
         return jsonify({'reply': reply})
     except Exception as e:
-        return jsonify({'error': str(e)})
+        return jsonify({'error': str(e)}), 500
