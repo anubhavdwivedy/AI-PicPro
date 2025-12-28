@@ -1,1 +1,139 @@
 
+# 🎨 AI-PicPro
+
+### AI-Powered Image Processing Web Application
+
+AI-PicPro is a web-based application that allows users to upload images and apply AI-powered image processing techniques. It demonstrates how artificial intelligence can be integrated into a simple, user-friendly web interface.
+
+---
+
+## 🚀 Project Overview
+
+**AI-PicPro** combines a Python backend with a clean frontend to deliver fast and effective image processing using AI techniques.
+
+**Key Goals:**
+
+* Simplify AI image processing
+* Provide an intuitive web experience
+* Demonstrate real-world AI + Web integration
+
+---
+
+## ✨ Features
+
+* 📷 Image upload via browser
+* 🧠 AI-powered image enhancement
+* ⚡ Fast Flask backend
+* 🌐 Responsive frontend UI
+* 🗂 Clean and modular project structure
+
+---
+
+## 🛠 Tech Stack
+
+### Backend
+
+* Python
+* Flask
+* AI / Image Processing Libraries
+
+### Frontend
+
+* HTML
+* CSS
+* JavaScript
+
+---
+
+## 📂 Project Structure
+
+```
+AI-PicPro/
+├── app.py
+├── requirements.txt
+├── static/
+│   ├── css/
+│   ├── js/
+│   └── images/
+├── templates/
+│   └── index.html
+├── Procfile
+├── runtime.txt
+```
+
+---
+
+## ⚙️ Installation
+
+**Step 1:** Clone the repository
+
+```
+git clone https://github.com/anubhavdwivedy/AI-PicPro.git
+```
+
+**Step 2:** Install dependencies
+
+```
+pip install -r requirements.txt
+```
+
+**Step 3:** Run the application
+
+```
+python app.py
+```
+
+---
+
+## ▶️ How It Works
+
+1. User opens the web app
+2. Uploads an image
+3. AI processes the image
+4. Output is displayed to the user
+
+---
+
+## 🚀 Deployment
+
+* Ready for cloud deployment
+* Includes `Procfile` and `runtime.txt`
+* Compatible with platforms like **Heroku**
+
+---
+
+## 🔮 Future Enhancements
+
+* Multiple AI filters
+* Better UI/UX
+* User authentication
+* Batch image processing
+* Docker support
+
+---
+
+## 🤝 Contribution
+
+Contributions are welcome!
+
+* Fork the repository
+* Create a new branch
+* Commit changes
+* Open a pull request
+
+---
+
+## 👤 Author
+
+**Anubhav Dwivedy**
+GitHub: github.com/anubhavdwivedy
+
+---
+
+## 📄 License
+
+MIT License
+Free to use, modify, and distribute.
+
+---
+
